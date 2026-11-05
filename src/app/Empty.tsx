@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Help } from './controls';
-import { CAT_CREDIT, EXAMPLES, PORTRAIT_CREDIT } from './examples';
+import { CAT_CREDIT, EXAMPLES, PORTRAIT_CREDIT, type Example } from './examples';
 import { defaultParams, framePlate } from './glassState';
 import { IconImage } from './icons';
 import type { LoadedImage } from './load';
@@ -84,7 +84,7 @@ function Compare({ image }: { image: LoadedImage }) {
 interface EmptyProps {
   examples: (LoadedImage | null)[];
   onPick: () => void;
-  onExample: (img: LoadedImage) => void;
+  onExample: (img: LoadedImage, ex: Example) => void;
   busy: boolean;
   error: string | null;
 }
@@ -134,7 +134,7 @@ export function Empty({ examples, onPick, onExample, busy, error }: EmptyProps) 
           {EXAMPLES.map((ex, i) => {
             const img = examples[i];
             return (
-              <button key={ex.id} type="button" className="ex-card" disabled={!img || busy} onClick={() => img && onExample(img)}>
+              <button key={ex.id} type="button" className="ex-card" disabled={!img || busy} onClick={() => img && onExample(img, ex)}>
                 {img ? <SplitThumb image={img} /> : <div className="ex-img" />}
                 <span>{ex.title}</span>
               </button>

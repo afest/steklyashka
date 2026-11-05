@@ -3,7 +3,7 @@ import { PRESETS, type ExportArea, type GlassParams } from '../glass';
 import { Help } from './controls';
 import { Dock } from './Dock';
 import { Empty } from './Empty';
-import { EXAMPLES } from './examples';
+import { EXAMPLES, type Example } from './examples';
 import { defaultParams, randomGlass, startPlate } from './glassState';
 import { IconBack, IconClose, IconDownload } from './icons';
 import { LoadError, describeDownscale, imageFromItems, loadFile, prepare, type LoadedImage } from './load';
@@ -50,14 +50,19 @@ export function App() {
 
   // ---------- открытие ----------
 
-  const open = useCallback(async (job: () => Promise<LoadedImage>, hasImage: boolean) => {
+  const open = useCallback(async (job: () => Promise<LoadedImage>, hasImage: boolean, example?: Example) => {
     setBusy('open');
     setError(null);
     try {
       const img = await job();
       setImage(img);
       // Стекло остаётся прежним, пластина встаёт почти во весь кадр новой картинки.
-      setParams((p) => ({ ...p, plate: startPlate(img.width, img.height) }));
+      // Пример приходит со своим стеклом и пластиной; своя картинка берёт то, что стояло.
+      setParams((p) => {
+        const plate = startPlate(img.width, img.height);
+        if (!example) return { ...p, plate };
+        return { ...structuredClone(PRESETS[example.look]), plate: { ...plate, ...example.plate } };
+      });
       setNotice(describeDownscale(img));
       setSaved(null);
       setMore(panelDefault());
@@ -237,7 +242,7 @@ export function App() {
         }}
       />
 
-      {!image && <Empty examples={examples} onPick={pick} onExample={(img) => open(async () => img, false)} busy={busy === 'open'} error={error} />}
+      {!image && <Empty examples={examples} onPick={pick} onExample={(img, ex) => open(async () => img, false, ex)} busy={busy === 'open'} error={error} />}
 
       {image && (
         <div className="work">

@@ -3,6 +3,7 @@
  * плакат и пейзаж рисуются здесь же на canvas: картинок со стороны за ними нет.
  */
 
+import type { PlateParams, PresetName } from '../glass';
 import catUrl from './assets/cat.jpg';
 import portraitUrl from './assets/portrait.jpg';
 
@@ -12,6 +13,10 @@ export interface Example {
   /** Имя для вкладки и подписи. */
   file: string;
   make: () => Promise<HTMLCanvasElement | HTMLImageElement>;
+  /** Стекло, с которым пример открывается: коту, лицу и шрифту нужны разные искажения. */
+  look: PresetName;
+  /** Где стоит пластина (доли кадра: центр и размер в меньших сторонах); без этого — во весь кадр. */
+  plate?: Pick<PlateParams, 'x' | 'y' | 'width' | 'height'>;
 }
 
 const W = 1600;
@@ -131,10 +136,10 @@ function photo(url: string): Promise<HTMLImageElement> {
 const fonts = () => document.fonts?.load('600 100px "Golos Text"').catch(() => undefined);
 
 export const EXAMPLES: Example[] = [
-  { id: 'cat', title: 'Кот', file: 'кот.jpg', make: () => photo(catUrl) },
-  { id: 'poster', title: 'Плакат', file: 'плакат.png', make: async () => (await fonts(), poster()) },
-  { id: 'landscape', title: 'Пейзаж', file: 'пейзаж.png', make: async () => landscape() },
-  { id: 'portrait', title: 'Портрет', file: 'портрет.jpg', make: () => photo(portraitUrl) },
+  { id: 'cat', title: 'Кот', file: 'кот.jpg', make: () => photo(catUrl), look: 'caricature' },
+  { id: 'poster', title: 'Плакат', file: 'плакат.png', make: async () => (await fonts(), poster()), look: 'slices' },
+  { id: 'landscape', title: 'Пейзаж', file: 'пейзаж.png', make: async () => landscape(), look: 'caricature' },
+  { id: 'portrait', title: 'Портрет', file: 'портрет.jpg', make: () => photo(portraitUrl), look: 'fluted', plate: { x: 0.3, y: 0.5, width: 0.6, height: 1.5 } },
 ];
 
 export const CAT_CREDIT = {

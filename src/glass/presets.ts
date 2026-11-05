@@ -33,6 +33,32 @@ export const PRESETS = {
     seamLight: 0.3,
     rainbow: 0.15,
   }),
+  /** Портрет: узкие вертикальные рёбра рифлёного стекла, лицо плывёт полосами. */
+  fluted: preset({
+    shape: 'stripes',
+    stripeAngle: 0,
+    cellSize: 0.055,
+    zoom: 2.2,
+    loupe: 0.1,
+    squareness: 0.5,
+    irregularity: 0.5,
+    seamSoftness: 0.2,
+    seamLight: 0.5,
+    rainbow: 0.08,
+  }),
+  /** Типографика: широкие горизонтальные пласты, буквы сдвинуты и окаймлены цветом. */
+  slices: preset({
+    shape: 'stripes',
+    stripeAngle: 90,
+    cellSize: 0.16,
+    zoom: 1.35,
+    loupe: 0.4,
+    squareness: 0.3,
+    irregularity: 0.15,
+    seamSoftness: 0.05,
+    seamLight: 0.1,
+    rainbow: 0.7,
+  }),
   video: preset({
     zoom: 1.8,
     loupe: 0.2,
