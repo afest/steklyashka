@@ -59,6 +59,18 @@ export const PRESETS = {
     seamLight: 0.1,
     rainbow: 0.7,
   }),
+  /** Пейзаж: соты средней величины, лёгкая лупа и радуга на гранях — вид как через гранёную линзу. */
+  honeycomb: preset({
+    shape: 'hex',
+    cellSize: 0.13,
+    zoom: 1.25,
+    loupe: 0.55,
+    squareness: 0.15,
+    irregularity: 0.2,
+    seamSoftness: 0.1,
+    seamLight: 0.4,
+    rainbow: 0.35,
+  }),
   video: preset({
     zoom: 1.8,
     loupe: 0.2,

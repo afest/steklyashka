@@ -1,32 +1,21 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Help } from './controls';
-import { CAT_CREDIT, EXAMPLES, PORTRAIT_CREDIT, type Example } from './examples';
-import { defaultParams, framePlate } from './glassState';
+import { CAT_CREDIT, EXAMPLES, LANDSCAPE_CREDIT, PORTRAIT_CREDIT, type Example } from './examples';
+import { defaultParams, exampleParams, framePlate } from './glassState';
 import { IconImage } from './icons';
 import type { LoadedImage } from './load';
 import { drawPreview, fitCanvas } from './preview';
 import { GestureHelp, Logo } from './parts';
 
-/** Пример: слева без стекла, справа со стеклом. */
-function SplitThumb({ image }: { image: LoadedImage }) {
+/** Превью примера: так он откроется — со своим стеклом и своей пластиной. */
+function ExThumb({ image, ex }: { image: LoadedImage; ex: Example }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const c = ref.current!;
     fitCanvas(c);
     const src = image.preview;
-    drawPreview(c, src, defaultParams(src.width, src.height));
-    const ctx = c.getContext('2d')!;
-    const k = Math.max(c.width / src.width, c.height / src.height);
-    const half = Math.round(c.width / 2);
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, half, c.height);
-    ctx.clip();
-    ctx.drawImage(src, (c.width - src.width * k) / 2, (c.height - src.height * k) / 2, src.width * k, src.height * k);
-    ctx.restore();
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(half - 1, 0, 2, c.height);
-  }, [image]);
+    drawPreview(c, src, exampleParams(ex, src.width, src.height));
+  }, [image, ex]);
   return <canvas ref={ref} className="ex-img" />;
 }
 
@@ -128,14 +117,14 @@ export function Empty({ examples, onPick, onExample, busy, error }: EmptyProps) 
       <section className="examples">
         <div className="ex-head">
           <b>Или возьмите пример</b>
-          <small>слева без стекла, справа со стеклом</small>
+          <small>каждый открывается со своим стеклом</small>
         </div>
         <div className="ex-grid">
           {EXAMPLES.map((ex, i) => {
             const img = examples[i];
             return (
               <button key={ex.id} type="button" className="ex-card" disabled={!img || busy} onClick={() => img && onExample(img, ex)}>
-                {img ? <SplitThumb image={img} /> : <div className="ex-img" />}
+                {img ? <ExThumb image={img} ex={ex} /> : <div className="ex-img" />}
                 <span>{ex.title}</span>
               </button>
             );
@@ -156,7 +145,11 @@ export function Empty({ examples, onPick, onExample, busy, error }: EmptyProps) 
         <a href={PORTRAIT_CREDIT.sourceUrl} target="_blank" rel="noreferrer">
           Wikimedia Commons
         </a>
-        , {PORTRAIT_CREDIT.license}. Остальные примеры нарисованы здесь же.
+        , {PORTRAIT_CREDIT.license}. Пейзаж — {LANDSCAPE_CREDIT.author},{' '}
+        <a href={LANDSCAPE_CREDIT.sourceUrl} target="_blank" rel="noreferrer">
+          Wikimedia Commons
+        </a>
+        , {LANDSCAPE_CREDIT.license}. Плакат нарисован здесь же.
       </footer>
     </div>
   );

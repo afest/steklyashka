@@ -4,7 +4,7 @@ import { Help } from './controls';
 import { Dock } from './Dock';
 import { Empty } from './Empty';
 import { EXAMPLES, type Example } from './examples';
-import { defaultParams, randomGlass, startPlate } from './glassState';
+import { defaultParams, exampleParams, randomGlass, startPlate } from './glassState';
 import { IconBack, IconClose, IconDownload } from './icons';
 import { LoadError, describeDownscale, imageFromItems, loadFile, prepare, type LoadedImage } from './load';
 import { More } from './More';
@@ -66,11 +66,7 @@ export function App() {
       setImage(img);
       // Стекло остаётся прежним, пластина встаёт почти во весь кадр новой картинки.
       // Пример приходит со своим стеклом и пластиной; своя картинка берёт то, что стояло.
-      setParams((p) => {
-        const plate = startPlate(img.width, img.height);
-        if (!example) return { ...p, plate };
-        return { ...structuredClone(PRESETS[example.look]), plate: { ...plate, ...example.plate } };
-      });
+      setParams((p) => (example ? exampleParams(example, img.width, img.height) : { ...p, plate: startPlate(img.width, img.height) }));
       setNotice(describeDownscale(img));
       setSaved(null);
       setMore(panelDefault());

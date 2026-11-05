@@ -26,6 +26,11 @@ export function defaultParams(w: number, h: number): GlassParams {
   return { ...structuredClone(PRESETS.caricature), plate: startPlate(w, h) };
 }
 
+/** Стекло, с которым пример открывается на экране и в превью на главной. */
+export function exampleParams(ex: { look: PresetName; plate?: Partial<PlateParams> }, w: number, h: number): GlassParams {
+  return { ...structuredClone(PRESETS[ex.look]), plate: { ...startPlate(w, h), ...ex.plate } };
+}
+
 export function isFullFrame(p: PlateParams, w: number, h: number): boolean {
   const f = framePlate(w, h, 1);
   const near = (a: number, b: number) => Math.abs(a - b) < 1e-3;
