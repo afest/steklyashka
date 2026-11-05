@@ -529,6 +529,23 @@ kbd {
   stroke-width: 1.5;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.45));
 }
+/* Рамка выключена: линии пропадают, остаются тихие точки по углам и сторонам. */
+.frame.bare .plate {
+  stroke: transparent;
+  filter: none;
+}
+.frame.bare .stem {
+  display: none;
+}
+.frame.bare .h {
+  opacity: 0.75;
+  stroke: rgba(0, 0, 0, 0.35);
+  stroke-width: 1;
+  filter: none;
+}
+.frame.bare .rot .h {
+  opacity: 0.55;
+}
 .frame .rot {
   cursor: grab;
 }

@@ -29,17 +29,20 @@ function canvas(): [HTMLCanvasElement, CanvasRenderingContext2D] {
   return [c, c.getContext('2d')!];
 }
 
-/** Строка, вписанная по ширине: кегль подбирается замером, а не растяжкой букв. */
-function fitLine(ctx: CanvasRenderingContext2D, text: string, x: number, baseline: number, width: number) {
+/** Кегль, при котором самая широкая из строк занимает ровно width; все строки набираются одним кеглем. */
+function fitSize(ctx: CanvasRenderingContext2D, lines: string[], width: number) {
   ctx.font = '600 100px "Golos Text", system-ui, sans-serif';
-  const size = (100 * width) / ctx.measureText(text).width;
+  const widest = Math.max(...lines.map((t) => ctx.measureText(t).width));
+  return (100 * width) / widest;
+}
+
+/** Строка заданным кеглем; лёгкая обводка утяжеляет начертание — самого жирного у шрифта в сборке нет. */
+function boldLine(ctx: CanvasRenderingContext2D, text: string, x: number, baseline: number, size: number) {
   ctx.font = `600 ${size}px "Golos Text", system-ui, sans-serif`;
-  // Лёгкая обводка утяжеляет начертание: самого жирного у шрифта в сборке нет.
   ctx.lineWidth = size * 0.035;
   ctx.lineJoin = 'round';
   ctx.strokeText(text, x, baseline);
   ctx.fillText(text, x, baseline);
-  return size;
 }
 
 function poster(): HTMLCanvasElement {
@@ -66,13 +69,12 @@ function poster(): HTMLCanvasElement {
   small('взгляд', 64, 130);
   small('2026', pw - 64, 118, 'right', 58);
 
-  // Заголовок: крупные строки лесенкой, у каждой своя ширина.
-  ctx.lineWidth = 0;
+  // Заголовок: один кегль, межстрочный интервал почти нулевой — ровный плотный блок.
+  const title = ['Стекло', 'меняет', 'взгляд'];
+  const size = fitSize(ctx, title, 1072);
+  const step = size * 0.74;
   ctx.textAlign = 'left';
-  fitLine(ctx, 'Стекло', 64, 720, 1060);
-  fitLine(ctx, 'меняет', 190, 1000, 940);
-  fitLine(ctx, 'взгляд', 64, 1280, 1000);
-  ctx.textAlign = 'left';
+  title.forEach((line, i) => boldLine(ctx, line, 64, 780 + i * step, size));
 
   // Колонка текста справа от верхней строки.
   const note = ['Картинка', 'распадается', 'на блоки,', 'а внутри', 'блока жива', 'вся текстура.'];

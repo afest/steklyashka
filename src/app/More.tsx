@@ -14,7 +14,7 @@ import {
 } from '../glass';
 import { Segmented, Slider, linear, logScale, type Unit } from './controls';
 import { PRESET_LIST, applyPreset, framePlate, isFullFrame, samePreset } from './glassState';
-import { IconClose, IconCollapse, IconDice, IconFill } from './icons';
+import { IconClose, IconCollapse, IconDice, IconFill, IconFrame } from './icons';
 import type { LoadedImage } from './load';
 import { drawPreview, fitCanvas } from './preview';
 
@@ -108,9 +108,11 @@ interface MoreProps {
   onArea: (a: ExportArea) => void;
   /** Телефон: шторку тянут за ручку, доля высоты экрана. */
   onSheet: (fraction: number) => void;
+  guides: boolean;
+  onGuides: (on: boolean) => void;
 }
 
-export function More({ image, params, onParams, onReset, onClose, area, onArea, onSheet }: MoreProps) {
+export function More({ image, params, onParams, onReset, onClose, area, onArea, onSheet, guides, onGuides }: MoreProps) {
   const full = isFullFrame(params.plate, image.width, image.height);
   return (
     <section className="more" aria-label="Тонкая настройка">
@@ -189,6 +191,10 @@ export function More({ image, params, onParams, onReset, onClose, area, onArea, 
         <Sliders items={SEAMS} params={params} onParams={onParams} />
 
         <h3>Пластина</h3>
+        <button type="button" className="toggle" aria-pressed={guides} onClick={() => onGuides(!guides)}>
+          <IconFrame />
+          Показывать рамку
+        </button>
         <button
           type="button"
           className="toggle"

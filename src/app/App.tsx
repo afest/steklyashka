@@ -14,6 +14,7 @@ import { SaveCard } from './SaveCard';
 import { Stage, type StageApi } from './Stage';
 
 /** «Тонкая настройка» закреплена справа и не закрывает картинку; на телефоне — шторкой поверх. */
+const GUIDES_KEY = 'steklyashka.guides';
 const PINNED = '(min-width: 861px)';
 const pinned = () => window.matchMedia(PINNED).matches;
 const PANEL_KEY = 'steklyashka:panel';
@@ -34,6 +35,13 @@ export function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hand, setHand] = useState(false);
+  const [guides, setGuides] = useState(() => {
+    try {
+      return localStorage.getItem(GUIDES_KEY) !== 'off';
+    } catch {
+      return true;
+    }
+  });
   /** Высота шторки настроек на телефоне, доля высоты экрана. */
   const [sheet, setSheet] = useState(0.46);
   const [busy, setBusy] = useState<'open' | 'save' | null>(null);
@@ -253,6 +261,7 @@ export function App() {
             onParams={setParams}
             hint={hint}
             hand={hand}
+            guides={guides}
             onInteract={() => setHint(false)}
             onZoom={setZoom}
           />
@@ -321,6 +330,15 @@ export function App() {
               area={area}
               onArea={setArea}
               onSheet={setSheet}
+              guides={guides}
+              onGuides={(on) => {
+                setGuides(on);
+                try {
+                  localStorage.setItem(GUIDES_KEY, on ? 'on' : 'off');
+                } catch {
+                  // Хранилище закрыто — выбор не запомнится.
+                }
+              }}
             />
           )}
 

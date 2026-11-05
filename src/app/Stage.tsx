@@ -111,12 +111,14 @@ interface StageProps {
   hint: boolean;
   /** Тач-экран: пальцы двигают и масштабируют картинку, а не стекло. */
   hand: boolean;
+  /** Рамка стекла: линии видны. Выключена — остаются только тихие точки по углам. */
+  guides: boolean;
   onInteract: () => void;
   /** Масштаб холста, %: 100 — пиксель картинки на пиксель экрана. */
   onZoom: (percent: number) => void;
 }
 
-export function Stage({ ref, image, params, onParams, hint, hand, onInteract, onZoom }: StageProps) {
+export function Stage({ ref, image, params, onParams, hint, hand, guides, onInteract, onZoom }: StageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<GlassRenderer | null>(null);
@@ -620,7 +622,7 @@ export function Stage({ ref, image, params, onParams, hint, hand, onInteract, on
     );
 
     frame = (
-      <svg className="frame" aria-hidden="true">
+      <svg className={`frame${guides ? '' : ' bare'}`} aria-hidden="true">
         <polygon data-h="move" className="plate" points={corners.map((c) => `${c.x},${c.y}`).join(' ')} />
         <line className="stem" x1={topMid.x} y1={topMid.y} x2={rot.x} y2={rot.y} />
         {bar('side:top', topMid, 0, cursor(90))}

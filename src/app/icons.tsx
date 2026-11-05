@@ -82,6 +82,15 @@ export const IconFill = () => (
     <path d="M3.5 9.2h17M3.5 14.8h17M9.2 3.5v17M14.8 3.5v17" />
   </Icon>
 );
+export const IconFrame = () => (
+  <Icon>
+    <path d="M7 5.5h10M7 18.5h10M5.5 7v10M18.5 7v10" />
+    <rect x="3.5" y="3.5" width="3" height="3" rx="0.8" />
+    <rect x="17.5" y="3.5" width="3" height="3" rx="0.8" />
+    <rect x="3.5" y="17.5" width="3" height="3" rx="0.8" />
+    <rect x="17.5" y="17.5" width="3" height="3" rx="0.8" />
+  </Icon>
+);
 export const IconOpen = () => (
   <Icon>
     <path d="M13.5 4.5h6v6M19.5 4.5l-8 8M10 5.5H6A1.5 1.5 0 0 0 4.5 7v11A1.5 1.5 0 0 0 6 19.5h11a1.5 1.5 0 0 0 1.5-1.5v-4" />
