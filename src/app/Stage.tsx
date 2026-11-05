@@ -371,7 +371,7 @@ export function Stage({ ref, image, params, onParams, hint, hand, onInteract, on
       client.set(e.pointerId, { x: e.clientX, y: e.clientY });
       live.current.onInteract();
       setDragging(true);
-      const handTouch = live.current.hand && e.pointerType === 'touch';
+      const handTouch = live.current.hand;
       if (pointers.size === 2) {
         if (handTouch) startHandPinch();
         else startPinch();

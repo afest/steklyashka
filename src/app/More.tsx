@@ -106,12 +106,27 @@ interface MoreProps {
   onClose: () => void;
   area: ExportArea;
   onArea: (a: ExportArea) => void;
+  /** Телефон: шторку тянут за ручку, доля высоты экрана. */
+  onSheet: (fraction: number) => void;
 }
 
-export function More({ image, params, onParams, onReset, onClose, area, onArea }: MoreProps) {
+export function More({ image, params, onParams, onReset, onClose, area, onArea, onSheet }: MoreProps) {
   const full = isFullFrame(params.plate, image.width, image.height);
   return (
     <section className="more" aria-label="Тонкая настройка">
+      <div
+        className="more-grip"
+        role="separator"
+        aria-orientation="horizontal"
+        aria-label="Потяните, чтобы изменить высоту панели"
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        }}
+        onPointerMove={(e) => {
+          if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
+          onSheet(Math.min(0.8, Math.max(0.25, 1 - e.clientY / window.innerHeight)));
+        }}
+      />
       <header className="more-head">
         <h2>Тонкая настройка</h2>
         <button type="button" className="link" onClick={onReset}>

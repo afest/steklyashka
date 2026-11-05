@@ -34,6 +34,8 @@ export function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hand, setHand] = useState(false);
+  /** Высота шторки настроек на телефоне, доля высоты экрана. */
+  const [sheet, setSheet] = useState(0.46);
   const [busy, setBusy] = useState<'open' | 'save' | null>(null);
   const [more, setMore] = useState(panelDefault);
   const [zoom, setZoom] = useState(100);
@@ -222,7 +224,7 @@ export function App() {
   };
 
   return (
-    <div className={`app${image ? ' has-image' : ''}${more ? ' panel' : ''}`} ref={rootRef}>
+    <div className={`app${image ? ' has-image' : ''}${more ? ' panel' : ''}`} ref={rootRef} style={{ '--sheet': sheet } as React.CSSProperties}>
       <input
         ref={fileInput}
         type="file"
@@ -279,9 +281,9 @@ export function App() {
               <Help>
                 <GestureHelp />
               </Help>
-              <button type="button" className="pill pri" onClick={save} disabled={busy === 'save'}>
+              <button type="button" className="pill pri save-btn" aria-label="Сохранить" title="Сохранить" onClick={save} disabled={busy === 'save'}>
                 <IconDownload />
-                {busy === 'save' ? 'Сохраняю…' : 'Сохранить'}
+                <span className="save-label">{busy === 'save' ? 'Сохраняю…' : 'Сохранить'}</span>
               </button>
             </div>
           </header>
@@ -313,6 +315,7 @@ export function App() {
               onClose={() => showMore(false)}
               area={area}
               onArea={setArea}
+              onSheet={setSheet}
             />
           )}
 

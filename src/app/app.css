@@ -835,7 +835,8 @@ kbd {
   letter-spacing: -0.01em;
 }
 .more-close,
-.more-collapse {
+.more-collapse,
+.more-grip {
   display: none;
 }
 .more-body {
@@ -1105,6 +1106,14 @@ kbd {
     width: 44px;
     padding: 0;
   }
+  /* На телефоне «Сохранить» — только значок. */
+  .save-btn {
+    width: 44px;
+    padding: 0;
+  }
+  .save-label {
+    display: none;
+  }
 
   .stage {
     padding: var(--top-h) 0 var(--dock-h);
@@ -1117,11 +1126,11 @@ kbd {
   }
   /* Открыты настройки: экран делится, картинка остаётся сверху, шторка занимает нижние 46 %. */
   .app.panel .stage {
-    bottom: 46dvh;
+    bottom: calc(var(--sheet, 0.46) * 100dvh);
     padding-bottom: 12px;
   }
   .app.panel .more {
-    height: 46dvh;
+    height: calc(var(--sheet, 0.46) * 100dvh);
     max-height: none;
   }
   .mode {
@@ -1238,16 +1247,25 @@ kbd {
     width: 36px;
     height: 36px;
   }
-  .more-head::before {
+  .more-grip {
+    display: block;
+    position: relative;
+    flex: none;
+    height: 26px;
+    margin-bottom: -10px;
+    cursor: ns-resize;
+    touch-action: none;
+  }
+  .more-grip::before {
     content: '';
     position: absolute;
     left: 50%;
-    top: 6px;
-    width: 36px;
-    height: 4px;
-    margin-left: -18px;
-    border-radius: 2px;
-    background: var(--line);
+    top: 8px;
+    width: 44px;
+    height: 5px;
+    margin-left: -22px;
+    border-radius: 3px;
+    background: #c4c4c0;
   }
 
   .notice {
