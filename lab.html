@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Стекляшка — лаборатория</title>
+  </head>
+  <body>
+    <main class="lab">
+      <section class="stage" id="stage">
+        <figure class="pane pane-glass" id="glass-pane">
+          <canvas id="glass"></canvas>
+          <svg class="frame" id="frame" aria-hidden="true"></svg>
+          <figcaption class="hud" id="hud"></figcaption>
+        </figure>
+      </section>
+
+      <aside class="panel">
+        <header class="panel-head">
+          <h1>Стекляшка</h1>
+          <span class="tag">лаборатория</span>
+        </header>
+
+        <div class="group">
+          <label class="field">
+            <span>Картинка</span>
+            <select id="image-select"></select>
+          </label>
+          <label class="file">
+            <input type="file" id="image-file" accept="image/*" />
+            <span>Загрузить свою</span>
+          </label>
+          <label class="field">
+            <span>Пресет</span>
+            <select id="preset-select"></select>
+          </label>
+          <label class="check">
+            <input type="checkbox" id="frame-toggle" checked />
+            <span>Показывать рамку с ручками</span>
+          </label>
+          <details class="help">
+            <summary><span class="help-mark">?</span> Как управлять рамкой</summary>
+            <ul>
+              <li>внутри — перенос</li>
+              <li>за угол — пропорционально, за сторону — растяжение; с Alt — от центра</li>
+              <li>чуть снаружи угла — поворот, с Shift — шагом 15°</li>
+              <li>колесо — размер, Shift + колесо — поворот</li>
+            </ul>
+          </details>
+        </div>
+
+        <div id="sliders"></div>
+
+        <div class="group">
+          <h2>Сохранить</h2>
+          <div id="save-options"></div>
+          <div class="buttons">
+            <button type="button" id="save">Сохранить PNG</button>
+            <span class="save-status" id="save-status"></span>
+          </div>
+          <p class="hint">В исходном разрешении картинки, без рамки с ручками.</p>
+        </div>
+
+        <div class="group">
+          <textarea id="json" spellcheck="false" rows="8" aria-label="Параметры в JSON"></textarea>
+          <div class="buttons">
+            <button type="button" id="copy">Скопировать параметры</button>
+            <button type="button" id="apply" class="ghost">Применить JSON</button>
+          </div>
+        </div>
+      </aside>
+    </main>
+    <script type="module" src="/src/lab/main.ts"></script>
+  </body>
+</html>
