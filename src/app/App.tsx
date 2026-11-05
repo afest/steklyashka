@@ -29,7 +29,7 @@ const panelDefault = () => {
 
 export function App() {
   const [image, setImage] = useState<LoadedImage | null>(null);
-  const [params, setParams] = useState<GlassParams>(() => structuredClone(PRESETS.video));
+  const [params, setParams] = useState<GlassParams>(() => structuredClone(PRESETS.caricature));
   const [examples, setExamples] = useState<(LoadedImage | null)[]>(() => EXAMPLES.map(() => null));
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);

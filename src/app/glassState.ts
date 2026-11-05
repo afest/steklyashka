@@ -1,7 +1,8 @@
 import { PRESETS, normalizeParams, setGridMode, type GlassParams, type PlateParams, type PresetName } from '../glass';
 
-/** Готовые наборы в панели «Ещё». Первый — стекло по сверке с кадрами, он же набор по умолчанию. */
+/** Готовые наборы в панели «Ещё». Первый — набор по умолчанию, «Классика» — стекло по сверке с кадрами. */
 export const PRESET_LIST: [PresetName, string][] = [
+  ['caricature', 'Карикатура'],
   ['video', 'Классика'],
   ['mosaic', 'Мозаика'],
   ['loupe', 'Лупа'],
@@ -18,11 +19,11 @@ export function framePlate(width: number, height: number, k: number): PlateParam
   return { x: 0.5, y: 0.5, width: (k * width) / side, height: (k * height) / side, rotation: 0 };
 }
 
-/** Пластина по умолчанию — почти во весь кадр, как в эскизе «Студия». */
-export const startPlate = (w: number, h: number) => framePlate(w, h, 0.86);
+/** Пластина по умолчанию — во весь кадр: крупные искажения видны сразу. */
+export const startPlate = (w: number, h: number) => framePlate(w, h, 1);
 
 export function defaultParams(w: number, h: number): GlassParams {
-  return { ...structuredClone(PRESETS.video), plate: startPlate(w, h) };
+  return { ...structuredClone(PRESETS.caricature), plate: startPlate(w, h) };
 }
 
 export function isFullFrame(p: PlateParams, w: number, h: number): boolean {
