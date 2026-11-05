@@ -33,6 +33,7 @@ export function App() {
   const [examples, setExamples] = useState<(LoadedImage | null)[]>(() => EXAMPLES.map(() => null));
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hand, setHand] = useState(false);
   const [busy, setBusy] = useState<'open' | 'save' | null>(null);
   const [more, setMore] = useState(panelDefault);
   const [zoom, setZoom] = useState(100);
@@ -215,6 +216,7 @@ export function App() {
     setImage(null);
     setSaved(null);
     setMore(false);
+    setHand(false);
     setNotice(null);
     document.title = 'Стекляшка — картинка сквозь стекло из линз';
   };
@@ -243,6 +245,7 @@ export function App() {
             params={params}
             onParams={setParams}
             hint={hint}
+            hand={hand}
             onInteract={() => setHint(false)}
             onZoom={setZoom}
           />
@@ -263,6 +266,14 @@ export function App() {
                 </button>
                 <button type="button" aria-label="Приблизить (+)" title="Приблизить (+)" onClick={() => stageApi.current?.zoomIn()}>
                   +
+                </button>
+              </div>
+              <div className="mode" role="radiogroup" aria-label="Что двигают пальцы">
+                <button type="button" role="radio" aria-checked={!hand} onClick={() => setHand(false)}>
+                  Стекло
+                </button>
+                <button type="button" role="radio" aria-checked={hand} onClick={() => setHand(true)}>
+                  Картинка
                 </button>
               </div>
               <Help>

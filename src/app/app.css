@@ -422,6 +422,9 @@ kbd {
 
 /* ---------- рабочий экран ---------- */
 
+.mode {
+  display: none;
+}
 .zoom {
   display: flex;
   align-items: center;
@@ -1111,6 +1114,34 @@ kbd {
   }
   .stage .paper {
     box-shadow: none;
+  }
+  /* Открыты настройки: экран делится, картинка остаётся сверху, шторка занимает нижние 46 %. */
+  .app.panel .stage {
+    bottom: 46dvh;
+    padding-bottom: 12px;
+  }
+  .app.panel .more {
+    height: 46dvh;
+    max-height: none;
+  }
+  .mode {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 999px;
+    background: rgba(23, 23, 26, 0.06);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .mode button {
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .mode button[aria-checked='true'] {
+    background: var(--ink);
+    color: #fff;
   }
 
   .dock {

@@ -34,7 +34,9 @@ type Drag =
   | { kind: 'side'; id: number; start: PlateGeometry; side: Side }
   | { kind: 'rotate'; id: number; start: PlateGeometry; a0: number }
   | { kind: 'pinch'; start: PlateGeometry; ids: [number, number]; c0: Pt; d0: number; a0: number }
-  | { kind: 'pan'; id: number; start: View; c0: Pt };
+  | { kind: 'pan'; id: number; start: View; c0: Pt }
+  /** Режим «Картинка» на тач-экране: два пальца масштабируют и двигают холст. */
+  | { kind: 'hpinch'; ids: [number, number]; d: number; c: Pt };
 
 /** Где картинка внутри сцены, px CSS. */
 interface Box {
@@ -107,12 +109,14 @@ interface StageProps {
   params: GlassParams;
   onParams: (p: GlassParams) => void;
   hint: boolean;
+  /** Тач-экран: пальцы двигают и масштабируют картинку, а не стекло. */
+  hand: boolean;
   onInteract: () => void;
   /** Масштаб холста, %: 100 — пиксель картинки на пиксель экрана. */
   onZoom: (percent: number) => void;
 }
 
-export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }: StageProps) {
+export function Stage({ ref, image, params, onParams, hint, hand, onInteract, onZoom }: StageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<GlassRenderer | null>(null);
@@ -123,8 +127,8 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
   const box = fit ? placed(fit, clampView(view, fit, image.width)) : null;
 
   // Обработчики жестов живут дольше рендера — берут свежие значения из ссылок.
-  const live = useRef({ params, image, box, fit, view, onParams, onInteract });
-  live.current = { params, image, box, fit, view, onParams, onInteract };
+  const live = useRef({ params, image, box, fit, view, hand, onParams, onInteract });
+  live.current = { params, image, box, fit, view, hand, onParams, onInteract };
 
   /** Пикселей холста на px CSS. */
   const dpr = useRef(1);
@@ -145,7 +149,7 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
   // ---------- масштаб холста ----------
 
   /** Умножить масштаб на k, не сдвинув точку под курсором (без курсора — центр места под картинку). */
-  const zoomAt = useCallback((k: number, sx?: number, sy?: number) => {
+  const zoomAt = useCallback((k: number, sx?: number, sy?: number, dx = 0, dy = 0) => {
     const { fit: f, image: img } = live.current;
     if (!f) return;
     setView((v) => {
@@ -158,7 +162,7 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
       const h = f.height * zoom;
       const left = px - ((px - b.left) / b.width) * w;
       const top = py - ((py - b.top) / b.height) * h;
-      return clampView({ zoom, x: left + w / 2 - f.left - f.width / 2, y: top + h / 2 - f.top - f.height / 2 }, f, img.width);
+      return clampView({ zoom, x: left + dx + w / 2 - f.left - f.width / 2, y: top + dy + h / 2 - f.top - f.height / 2 }, f, img.width);
     });
   }, []);
 
@@ -286,6 +290,8 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
   useEffect(() => {
     const stage = stageRef.current!;
     const pointers = new Map<number, Pt>();
+    /** Те же пальцы в координатах экрана — для жестов холста, где картинка под пальцами сама едет. */
+    const client = new Map<number, Pt>();
     let drag: Drag | null = null;
     /** Зажат пробел — любое нажатие двигает холст. */
     let space = false;
@@ -348,6 +354,11 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
       };
     };
 
+    const startHandPinch = () => {
+      const [a, b] = [...client.entries()];
+      drag = { kind: 'hpinch', ids: [a[0], b[0]], d: Math.max(1e-3, Math.hypot(b[1].x - a[1].x, b[1].y - a[1].y)), c: mid(a[1], b[1]) };
+    };
+
     const down = (e: PointerEvent) => {
       if (!live.current.box) return;
       const middle = e.pointerType === 'mouse' && e.button === 1;
@@ -357,10 +368,17 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
       stage.setPointerCapture(e.pointerId);
       const p = toImage(e);
       pointers.set(e.pointerId, p);
+      client.set(e.pointerId, { x: e.clientX, y: e.clientY });
       live.current.onInteract();
       setDragging(true);
+      const handTouch = live.current.hand && e.pointerType === 'touch';
       if (pointers.size === 2) {
-        startPinch();
+        if (handTouch) startHandPinch();
+        else startPinch();
+        return;
+      }
+      if (handTouch) {
+        drag = { kind: 'pan', id: e.pointerId, start: live.current.view, c0: { x: e.clientX, y: e.clientY } };
         return;
       }
       // Палец мимо пластины по-прежнему переносит её; мышь по пустому месту двигает холст.
@@ -402,6 +420,18 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
       const p = toImage(e);
       pointers.set(e.pointerId, p);
       const d = drag;
+      client.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (d.kind === 'hpinch') {
+        const pa = client.get(d.ids[0]);
+        const pb = client.get(d.ids[1]);
+        if (!pa || !pb) return;
+        const c = mid(pa, pb);
+        const dist = Math.max(1e-3, Math.hypot(pb.x - pa.x, pb.y - pa.y));
+        const r = stage.getBoundingClientRect();
+        zoomAt(dist / d.d, c.x - r.left, c.y - r.top, c.x - d.c.x, c.y - d.c.y);
+        drag = { ...d, d: dist, c };
+        return;
+      }
       if (d.kind === 'pan') {
         if (e.pointerId === d.id) setPan(d.start, e.clientX - d.c0.x, e.clientY - d.c0.y);
         return;
@@ -468,6 +498,12 @@ export function Stage({ ref, image, params, onParams, hint, onInteract, onZoom }
 
     const up = (e: PointerEvent) => {
       if (!pointers.delete(e.pointerId)) return;
+      client.delete(e.pointerId);
+      if (drag?.kind === 'hpinch' && pointers.size === 1) {
+        const [id, p] = [...client.entries()][0];
+        drag = { kind: 'pan', id, start: live.current.view, c0: p };
+        return;
+      }
       if (drag?.kind === 'pinch' && pointers.size === 1) {
         // Один палец остался — дальше он просто тащит стекло.
         const [id, p] = [...pointers.entries()][0];
