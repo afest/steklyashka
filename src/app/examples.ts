@@ -1,9 +1,10 @@
 /**
- * Примеры на пустом экране. Кот — фото с лицензией CC BY 4.0 (подпись автора — на пустом экране),
- * плакат, пейзаж и узор рисуются здесь же на canvas: картинок со стороны за ними нет.
+ * Примеры на пустом экране. Кот — фото с лицензией CC BY 4.0, портрет — CC0 (подписи авторов — на пустом экране),
+ * плакат и пейзаж рисуются здесь же на canvas: картинок со стороны за ними нет.
  */
 
 import catUrl from './assets/cat.jpg';
+import portraitUrl from './assets/portrait.jpg';
 
 export interface Example {
   id: string;
@@ -23,21 +24,63 @@ function canvas(): [HTMLCanvasElement, CanvasRenderingContext2D] {
   return [c, c.getContext('2d')!];
 }
 
+/** Строка, вписанная по ширине: кегль подбирается замером, а не растяжкой букв. */
+function fitLine(ctx: CanvasRenderingContext2D, text: string, x: number, baseline: number, width: number) {
+  ctx.font = '600 100px "Golos Text", system-ui, sans-serif';
+  const size = (100 * width) / ctx.measureText(text).width;
+  ctx.font = `600 ${size}px "Golos Text", system-ui, sans-serif`;
+  // Лёгкая обводка утяжеляет начертание: самого жирного у шрифта в сборке нет.
+  ctx.lineWidth = size * 0.035;
+  ctx.lineJoin = 'round';
+  ctx.strokeText(text, x, baseline);
+  ctx.fillText(text, x, baseline);
+  return size;
+}
+
 function poster(): HTMLCanvasElement {
-  const [c, ctx] = canvas();
-  ctx.fillStyle = '#2140F5';
-  ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = '#FFD83A';
-  ctx.textBaseline = 'alphabetic';
-  ctx.font = '600 470px "Golos Text", system-ui, sans-serif';
-  ctx.fillText('ЛИН', 70, 520);
-  ctx.fillText('ЗЫ', 70, 1060);
+  const pw = 1200;
+  const ph = 1680;
+  const c = document.createElement('canvas');
+  c.width = pw;
+  c.height = ph;
+  const ctx = c.getContext('2d')!;
+  ctx.fillStyle = '#0A0A0A';
+  ctx.fillRect(0, 0, pw, ph);
   ctx.fillStyle = '#FFFFFF';
-  ctx.font = '600 54px "Golos Text", system-ui, sans-serif';
-  ctx.fillText('29 · 10', W - 290, 1110);
-  ctx.beginPath();
-  ctx.arc(1240, 760, 150, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.textBaseline = 'alphabetic';
+
+  const small = (text: string, x: number, y: number, align: CanvasTextAlign = 'left', size = 28) => {
+    ctx.font = `500 ${size}px "Golos Text", system-ui, sans-serif`;
+    ctx.textAlign = align;
+    ctx.fillText(text, x, y);
+  };
+
+  // Шапка: мелкие подписи по углам.
+  small('Новый', 64, 96);
+  small('взгляд', 64, 130);
+  small('2026', pw - 64, 118, 'right', 58);
+
+  // Заголовок: крупные строки лесенкой, у каждой своя ширина.
+  ctx.lineWidth = 0;
+  ctx.textAlign = 'left';
+  fitLine(ctx, 'Стекло', 64, 720, 1060);
+  fitLine(ctx, 'меняет', 190, 1000, 940);
+  fitLine(ctx, 'взгляд', 64, 1280, 1000);
+  ctx.textAlign = 'left';
+
+  // Колонка текста справа от верхней строки.
+  const note = ['Картинка', 'распадается', 'на блоки,', 'а внутри', 'блока жива', 'вся текстура.'];
+  note.forEach((line, i) => small(line, pw - 64, 214 + i * 36, 'right', 26));
+
+  // Низ: тонкая линия и три подписи.
+  ctx.fillRect(64, 1472, pw - 128, 2);
+  small('Серия', 64, 1544);
+  small('Стекло из ячеек', 64, 1580);
+  small('Печатный', pw / 2, 1544, 'center');
+  small('плакат', pw / 2, 1580, 'center');
+  small('№ 07', pw - 64, 1580, 'right', 44);
+  ctx.textAlign = 'left';
   return c;
 }
 
@@ -76,34 +119,6 @@ function landscape(): HTMLCanvasElement {
   return c;
 }
 
-function pattern(): HTMLCanvasElement {
-  const [c, ctx] = canvas();
-  const colors = ['#0F3D4C', '#F2495C', '#FFB703', '#1EC8A5', '#F4EFE3', '#2D6CDF'];
-  const cell = 400;
-  for (let y = 0; y < H; y += cell) {
-    for (let x = 0; x < W; x += cell) {
-      const k = (x / cell + (y / cell) * 3) % 6;
-      ctx.fillStyle = colors[k];
-      ctx.fillRect(x, y, cell, cell);
-      ctx.fillStyle = colors[(k + 2) % 6];
-      if (k % 3 === 0) {
-        ctx.beginPath();
-        ctx.arc(x + cell / 2, y + cell / 2, cell * 0.32, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (k % 3 === 1) {
-        for (let i = 0; i < 5; i++) ctx.fillRect(x + 30 + i * 74, y + 30, 36, cell - 60);
-      } else {
-        ctx.beginPath();
-        ctx.moveTo(x, y + cell);
-        ctx.lineTo(x + cell, y);
-        ctx.lineTo(x + cell, y + cell);
-        ctx.fill();
-      }
-    }
-  }
-  return c;
-}
-
 function photo(url: string): Promise<HTMLImageElement> {
   return new Promise((ok, fail) => {
     const img = new Image();
@@ -119,7 +134,7 @@ export const EXAMPLES: Example[] = [
   { id: 'cat', title: 'Кот', file: 'кот.jpg', make: () => photo(catUrl) },
   { id: 'poster', title: 'Плакат', file: 'плакат.png', make: async () => (await fonts(), poster()) },
   { id: 'landscape', title: 'Пейзаж', file: 'пейзаж.png', make: async () => landscape() },
-  { id: 'pattern', title: 'Узор', file: 'узор.png', make: async () => pattern() },
+  { id: 'portrait', title: 'Портрет', file: 'портрет.jpg', make: () => photo(portraitUrl) },
 ];
 
 export const CAT_CREDIT = {
@@ -127,4 +142,10 @@ export const CAT_CREDIT = {
   license: 'CC BY 4.0',
   licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
   sourceUrl: 'https://commons.wikimedia.org/wiki/File:Katzengesicht_BKH_20201107_DSC5735.jpg',
+};
+
+export const PORTRAIT_CREDIT = {
+  author: 'Ilya Yakover',
+  license: 'CC0',
+  sourceUrl: 'https://commons.wikimedia.org/wiki/File:Ilya_Yakover_2017-05-24_(Unsplash).jpg',
 };

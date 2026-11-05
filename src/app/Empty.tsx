@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Help } from './controls';
-import { CAT_CREDIT, EXAMPLES } from './examples';
+import { CAT_CREDIT, EXAMPLES, PORTRAIT_CREDIT } from './examples';
 import { defaultParams, framePlate } from './glassState';
 import { IconImage } from './icons';
 import type { LoadedImage } from './load';
@@ -152,7 +152,11 @@ export function Empty({ examples, onPick, onExample, busy, error }: EmptyProps) 
         <a href={CAT_CREDIT.licenseUrl} target="_blank" rel="noreferrer">
           {CAT_CREDIT.license}
         </a>
-        , кадрировано. Остальные примеры нарисованы здесь же.
+        , кадрировано. Портрет — {PORTRAIT_CREDIT.author},{' '}
+        <a href={PORTRAIT_CREDIT.sourceUrl} target="_blank" rel="noreferrer">
+          Wikimedia Commons
+        </a>
+        , {PORTRAIT_CREDIT.license}. Остальные примеры нарисованы здесь же.
       </footer>
     </div>
   );
